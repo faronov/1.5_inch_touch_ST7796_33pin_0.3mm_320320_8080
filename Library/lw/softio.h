@@ -1,9 +1,9 @@
-//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////// ////////////
 //
-// 老王电子数码DIY，淘宝店 https://shop154838422.taobao.com/
-// 未经许可勿商业使用，个人使用请勿删除此声明
+// Laowang Electronics Digital DIY, Taobao store https://shop154838422.taobao.com/
+// Do not use commercially without permission, please do not delete this statement for personal use
 //
-//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////// ////////////
 #ifndef _SOFTIO_H_
 #define _SOFTIO_H_
 
@@ -17,7 +17,7 @@
 #define MCU_SET_IO(pin, v) pin=v;
 #endif
 
-// LCD复位
+// LCD reset
 #ifdef LCD_RST
 void MCU_SET_LCD_RST(BYTE b)
 {
@@ -33,15 +33,15 @@ void MCU_SET_LCD_RST(BYTE b)
 #endif
 
 
-// 延迟函数初始值，如果默认值不准，需要自己定义 MCU_DELAY_MS_INIT
+// The initial value of the delay function, if the default value is inaccurate, you need to define MCU_DELAY_MS_INIT by yourself
 #ifndef MCU_DELAY_MS_INIT
 	#ifndef MAIN_Fosc
-		#define MAIN_Fosc 16059200UL //宏定义主时钟 HZ，默认16M
+		#define MAIN_Fosc 16059200UL //Macro defines main clock HZ, default 16M
 	#endif
 	#define MCU_DELAY_MS_INIT MAIN_Fosc / (960000 / 48)
 #endif
 
-// 内建的ms延迟
+// Built-in ms delay
 void MCU_DELAY_MS(WORD wMS)
 {
 	WORD i;
@@ -58,7 +58,7 @@ void MCU_DELAY_MS(WORD wMS)
 }
 
 
-// 内建的ms延迟，如果mcu主频
+// Built-in ms delay, if the mcu frequency
 void MCU_DELAY_US(WORD wUs)
 {
 #if defined(STM32)
@@ -70,7 +70,7 @@ void MCU_DELAY_US(WORD wUs)
 }
 
 
-// 纯软件IO驱动IIC,SPI,P8_6800
+// Pure software IO driver IIC, SPI, P8_6800
 
 #ifdef IIC
 
@@ -148,7 +148,7 @@ void MCU_WRITE_LCD_BYTE(BYTE byDat, BYTE bIsDat)
 	BYTE i;
 #endif
 #if defined(C51)
-	MCU_SET_IO(EA, 0); // 禁止中断
+	MCU_SET_IO(EA, 0); // disable interrupt
 #endif
 #ifdef IIC
 	IIC_START();
@@ -157,7 +157,7 @@ void MCU_WRITE_LCD_BYTE(BYTE byDat, BYTE bIsDat)
 	IIC_WRITE_BYTE(byDat);
 	IIC_STOP();
 
-#elif defined(P8_6800) //  // 未定义RW，则实际RW要接地
+#elif defined(P8_6800) // If RW is not defined, the actual RW should be grounded
 #ifdef LCD_RW
 	MCU_SET_IO(LCD_RW, 0);
 #endif
@@ -168,7 +168,7 @@ void MCU_WRITE_LCD_BYTE(BYTE byDat, BYTE bIsDat)
    	P8_DELAY(2);
  	MCU_SET_IO(LCD_E, 0);
 	MCU_SET_IO(LCD_CS, 1);
-#elif defined(P8_8080) // 未定义RD，则实际RD要接VDD
+#elif defined(P8_8080) // If RD is not defined, the actual RD should be connected to VDD
 #ifdef LCD_RD
 	MCU_SET_IO(LCD_RD, 1);
 #endif
@@ -206,7 +206,7 @@ void MCU_WRITE_LCD_BYTE(BYTE byDat, BYTE bIsDat)
 	MCU_SET_IO(LCD_CS, 1);
 #endif
 #if defined(C51)
-	MCU_SET_IO(EA, 1); // 恢复中断
+	MCU_SET_IO(EA, 1); // resume interrupt
 #endif
 }
 

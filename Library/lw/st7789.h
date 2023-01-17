@@ -1,46 +1,46 @@
-//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////// ////////////
 //
-// 老王电子数码DIY，淘宝店 https://shop154838422.taobao.com/
-// 未经许可勿商业使用，个人使用请勿删除此声明
+// Laowang Electronics Digital DIY, Taobao store https://shop154838422.taobao.com/
+// Do not use commercially without permission, please do not delete this statement for personal use
 //
-//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////// ////////////
 #ifndef _ST7789_H_
 #define _ST7789_H_
 
-//设置横屏或者竖屏显示 0或1为竖屏 2或3为横屏
+//Set horizontal screen or vertical screen display, 0 or 1 is vertical screen, 2 or 3 is horizontal screen
 #ifndef USE_HORIZONTAL
 #define USE_HORIZONTAL 0
 #endif
 
-// 彩屏，16位色
+// Color screen, 16-bit color
 #define LCD_COLOR_BITS 16
 
-// LCD宽
+// LCD width
 #ifndef X_WIDTH
 #define X_WIDTH 240
 #endif
 
-// LCD高
+// LCD high
 #ifndef Y_WIDTH
 #define Y_WIDTH 240
 #endif
 
-// x方向显示偏移
+// display offset in x direction
 #ifndef COL_OFFSET
 #define COL_OFFSET 0
 #endif
 
-// y方向显示偏移
+// display offset in y direction
 #ifndef ROW_OFFSET
 #define ROW_OFFSET 0
 #endif
 
 
-// 初始化芯片
+// Initialize the chip
 void LCD_IC_INIT(void)
 {
 #ifdef LCD_RST
-	// 控制rst，确保ic复位
+	// Control rst to ensure ic is reset
 	MCU_SET_LCD_RST(1);
 	MCU_DELAY_MS(100);
 	MCU_SET_LCD_RST(0);
@@ -59,7 +59,7 @@ void LCD_IC_INIT(void)
 	#define RGB_REVERT_MASK 0
 #endif
 
-#if defined(LCD_REVERT_X) // 镜像反转
+#if defined(LCD_REVERT_X) // mirror reverse
 	if(USE_HORIZONTAL==0)MCU_WRITE_LCD_DAT8(0x40 | RGB_REVERT_MASK);
 	else if(USE_HORIZONTAL==1)MCU_WRITE_LCD_DAT8(0x80 | RGB_REVERT_MASK);
 	else if(USE_HORIZONTAL==2)MCU_WRITE_LCD_DAT8(0xF0 | RGB_REVERT_MASK);
@@ -72,7 +72,7 @@ void LCD_IC_INIT(void)
 #endif
 		
 	MCU_WRITE_LCD_CMD(0x3A);     
-	MCU_WRITE_LCD_DAT8(0x05); // 5-6-5 16bit模式，0x06-->6-6-6 18bit模式   
+	MCU_WRITE_LCD_DAT8(0x05); // 5-6-5 16bit mode, 0x06-->6-6-6 18bit mode 
 
 	MCU_WRITE_LCD_CMD(0xB2);     
 	MCU_WRITE_LCD_DAT8(0x1F);   
@@ -107,7 +107,7 @@ void LCD_IC_INIT(void)
 	MCU_WRITE_LCD_DAT8(0xA1);   
 
 	MCU_WRITE_LCD_CMD(0xD6);     
-	MCU_WRITE_LCD_DAT8(0xA1);   //sleep in后，gate输出为GND
+	MCU_WRITE_LCD_DAT8(0xA1);   //After sleep in, the gate output is GND
 
 	MCU_WRITE_LCD_CMD(0xE0);     
 	MCU_WRITE_LCD_DAT8(0xF0);   
@@ -151,14 +151,14 @@ void LCD_IC_INIT(void)
 }
             
 
-// 窗口模式地址，可以精确到每个点
+// Window mode address, accurate to each point
 BYTE LCD_SET_WINDOW(WORD x1, WORD y1, WORD x2, WORD y2)
 {
-    if ((x1 >= X_WIDTH) || (y1 >= Y_WIDTH)) // 超出显示区域，不画
+    if ((x1 >= X_WIDTH) || (y1 >= Y_WIDTH)) // beyond the display area, do not draw
 	{
         return 0;
 	}
-	if (x2 > X_WIDTH) // 部分超出显示区域，	 不画超出部分
+	if (x2 > X_WIDTH) // part exceeds the display area, do not draw the excess part
 	{
 		x2 = X_WIDTH;
 	}
@@ -171,26 +171,26 @@ BYTE LCD_SET_WINDOW(WORD x1, WORD y1, WORD x2, WORD y2)
 	y1 += ROW_OFFSET;
 	y2 += ROW_OFFSET;
 
-	if(USE_HORIZONTAL <= 1) // 竖屏
+	if(USE_HORIZONTAL <= 1) // vertical screen
 	{
-		MCU_WRITE_LCD_CMD(0x2a);//列地址设置
+		MCU_WRITE_LCD_CMD(0x2a);//column address setting
 		MCU_WRITE_LCD_DAT16(x1);
 		MCU_WRITE_LCD_DAT16(x2);
-		MCU_WRITE_LCD_CMD(0x2b);//行地址设置
+		MCU_WRITE_LCD_CMD(0x2b);//row address setting
 		MCU_WRITE_LCD_DAT16(y1);
 		MCU_WRITE_LCD_DAT16(y2);
 	}
-	else // 横屏
+	else // horizontal screen
 	{
-		MCU_WRITE_LCD_CMD(0x2a);//列地址设置
+		MCU_WRITE_LCD_CMD(0x2a);//column address setting
 		MCU_WRITE_LCD_DAT16(x1);
 		MCU_WRITE_LCD_DAT16(x2);
-		MCU_WRITE_LCD_CMD(0x2b);//行地址设置
+		MCU_WRITE_LCD_CMD(0x2b);//row address setting
 		MCU_WRITE_LCD_DAT16(y1);
 		MCU_WRITE_LCD_DAT16(y2);
 	}
-	MCU_WRITE_LCD_CMD(0x2c);//储存器写(并设置xy到windows起始位置)
-	// 0x3c 继续写基于当前xy位置，超出windows结束位置忽略
+	MCU_WRITE_LCD_CMD(0x2c); //Memory write (and set xy to windows start position)
+// 0x3c Continue to write based on the current xy position, beyond the end position of windows is ignored
 
 	return 1;
 }
