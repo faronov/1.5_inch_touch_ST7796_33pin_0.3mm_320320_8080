@@ -1,5 +1,5 @@
-// 彩图，用Image2Lcd生成其中数据
-// 注意51默认数据段空间较小，大块只读变量必须用code修饰，使其存放在代码空间
+// Color map, use Image2Lcd to generate the data in it
+// Note that the default data segment space of 51 is small, and large read-only variables must be modified with code to store them in the code space
 code unsigned char gImage[6272] = { /* 0X10,0X10,0X00,0X38,0X00,0X38,0X01,0X1B, */
 0XEF,0XBC,0XEF,0XBC,0XEF,0XBC,0XEF,0XBC,0XEF,0XBC,0XEF,0XBC,0XEF,0XBC,0XEF,0XBC,
 0XEF,0XBC,0XEF,0XBC,0XEF,0XBC,0XEF,0XBC,0XEF,0XBC,0XEF,0XBC,0XEF,0XBC,0XEF,0XBC,
