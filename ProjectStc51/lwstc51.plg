@@ -1,0 +1,27 @@
+<html>
+<body>
+<pre>
+<h1>礦ision Build Log</h1>
+<h2>Project:</h2>
+D:\work\mydoc\个人\学习\屏幕\老王lcd\老王1.5寸带触摸方形彩屏_ST7796_33pin_0.3mm_320320_8080\ProjectStc51\lwstc51.uvproj
+Project File Date:  11/15/2022
+
+<h2>Output:</h2>
+Build target 'lwstc51'
+compiling main.c...
+linking...
+*** WARNING L16: UNCALLED FUNCTION, IGNORED FOR OVERLAY PROCESS
+    NAME:    _MCU_DELAY_US/MAIN
+*** WARNING L16: UNCALLED FUNCTION, IGNORED FOR OVERLAY PROCESS
+    NAME:    _P8_DELAY/MAIN
+*** WARNING L16: UNCALLED FUNCTION, IGNORED FOR OVERLAY PROCESS
+    NAME:    _MCU_WRITE_LCD_CMD_A/MAIN
+*** WARNING L16: UNCALLED FUNCTION, IGNORED FOR OVERLAY PROCESS
+    NAME:    _MCU_WRITE_LCD_CMD_AA/MAIN
+*** WARNING L16: UNCALLED FUNCTION, IGNORED FOR OVERLAY PROCESS
+    NAME:    _MCU_WRITE_LCD_CMD_D/MAIN
+*** WARNING L16: UNCALLED FUNCTION, IGNORED FOR OVERLAY PROCESS
+    NAME:    _MCU_WRITE_LCD_CMD_DD/MAIN
+Program Size: data=71.0 xdata=0 const=0 code=11212
+creating hex file from "lwstc51"...
+"lwstc51" - 0 Error(s), 6 Warning(s).

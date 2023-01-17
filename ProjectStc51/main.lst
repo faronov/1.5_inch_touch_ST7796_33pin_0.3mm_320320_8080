@@ -1,0 +1,234 @@
+C51 COMPILER V9.00   MAIN                                                                  12/23/2022 11:35:54 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\main.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE ..\user\main.c OMF2 INCDIR(..\Library\lw) DEBUG PRINT(.\main.lst) OBJECT(.\
+                    -main.obj)
+
+line level    source
+
+   1          //////////////////////////////////////////////////////////////
+   2          //
+   3          // 老王电子数码DIY，淘宝店 https://shop154838422.taobao.com/
+   4          // 未经许可勿商业使用，个人使用请勿删除此声明
+   5          //
+   6          //////////////////////////////////////////////////////////////
+   7          // 1.5寸带触摸方形彩屏，51示例代码
+   8          //
+   9          // 排线丝印：FPC1543301E        触摸排线丝印：GVS-C789-FCP_V4
+  10          // 排线定义：1,2,19,21,23-GND(内部已连，连一个即可)  9-TE 11~18-D0~D8
+  11          // 20-RD 22-DC 24-WR 25-CS 26-RST 27,28-VDD(3V3) 30-BL- 32-BL+(3S,8V) 33-?
+  12          //
+  13          //////////////////////////////////////////////////////////////
+  14          
+  15          // 1，引用的系统库
+  16          #if defined(MS51) // 采用新塘MS51芯片 16KB
+              #include "MS51_32K.h"
+              #else // 传统51，如STC8等16KB以上芯片，
+  19          #include <reg52.h>
+  20          #endif
+  21          
+  22          // 统一常用数据类型定义
+  23          typedef unsigned char BYTE;
+  24          typedef unsigned short WORD;
+  25          
+  26          
+  27          // 2，引用的驱动库
+  28          // 2.1，软件IO，支持4线SPI/3线SPI/IIC/8位8080/8位6800
+  29          // 用户需要宏定义来选择IO模式、引脚
+  30          #define P8_8080
+  31          
+  32          // 下面要定义软件IO的具体引脚，可自行更改
+  33          #ifdef MS51 
+              
+              // LCD有复位脚的建议定义.
+              // 如不定义，则LCD上电后只能硬件初始化一次，无法重复硬件初始化（可靠性降低）
+              // 如果你的电路用MCU引脚控制LCD电源，可以用电源硬复位，无需定义此脚
+              #define LCD_RST  P13
+              
+              // P8080 并口，数据口要整个P口
+              #define LCD_DATA  P0
+              
+              #define LCD_WR  P10
+              
+              // 本模块只写入不读取
+              #define LCD_RD P11 // 如果定义此脚，代码自动置为1
+              
+              // 数据/命令信号选择，别名有A0，DC, R_S
+              #define LCD_RS   P12
+              
+              // 片选
+              #define LCD_CS   P14
+              
+              #else  // stc等通用51，不同的芯片不同的IO布局。分别定义
+C51 COMPILER V9.00   MAIN                                                                  12/23/2022 11:35:54 PAGE 2   
+
+  55          // stc8h3k tssop20测试
+  56          // 定义与MS51统一的引脚变量
+  57          sbit P31=P3^1; //串行时钟
+  58          sbit P30=P3^0; //串行数据
+  59          sbit P32=P3^2;
+  60          sbit P33=P3^3;
+  61          sbit P34=P3^4;
+  62          sbit P35=P3^5;
+  63          sbit P36=P3^6;
+  64          sbit P37=P3^7;
+  65          
+  66          #define LCD_CS   P37
+  67          #define LCD_RST  P36
+  68          #define LCD_RS   P35
+  69          #define LCD_WR  P31
+  70          #define LCD_RD  P30
+  71          
+  72          // P8080 并口，数据口要整个P口
+  73          #define LCD_DATA  P1
+  74          
+  75          #endif
+  76          
+  77          #include "softio.h"
+  78          
+  79          // 2.2，ST7789显示芯片驱动库，可以定义一些宏适应不同参数的此类屏幕
+  80          #define LCD_REVERT_RGB // 此屏幕RGB像素顺序为BGR
+  81          #define LCD_REVERT_X // x反向反转
+  82          #define LCD_DISPLAY_INVERSION // 默认反显
+  83          #define X_WIDTH 320
+  84          #define Y_WIDTH 320
+  85          // st7796, ST7789代码完全兼容
+  86          #include "st7789.h" // 
+  87          
+  88          // 2.3，简易图形函数库
+  89          #include "gui.h"
+  90          
+  91          // 3, 用户需要自定义资源
+  92          // 3.1 单色图，字体等，用PCtoLCD2002生成其中数据
+  93          #include "res.h"
+  94           
+  95          // 3.2 16位彩图，用Image2Lcd生成其中数据
+  96          #include "res_color_pic.h" 
+  97          
+  98          // 下面根据不同的芯片，编写不同的芯片初始化函数
+  99          // 因为有些芯片需要清除看门狗、设置时钟等特殊初始化代码
+ 100          #ifdef MS51
+              
+              void init_MCU()
+              {
+              }
+              
+              // IO推挽输出，无需接上拉电阻
+              void init_IO()
+              {
+                      // SPI&IIC
+                      P10_PUSHPULL_MODE;
+                      P11_PUSHPULL_MODE;
+                      P12_PUSHPULL_MODE;
+                      P13_PUSHPULL_MODE;
+                      P14_PUSHPULL_MODE;
+              
+              #if defined(P8_6800) || defined(P8_8080)
+C51 COMPILER V9.00   MAIN                                                                  12/23/2022 11:35:54 PAGE 3   
+
+                      P00_PUSHPULL_MODE;
+                      P01_PUSHPULL_MODE;
+                      P02_PUSHPULL_MODE;
+                      P03_PUSHPULL_MODE;
+                      P04_PUSHPULL_MODE;
+                      P05_PUSHPULL_MODE;
+                      P06_PUSHPULL_MODE;
+                      P07_PUSHPULL_MODE;
+              #endif
+              
+              }
+              
+              #else // STC 51芯片
+ 130          
+ 131          // STC
+ 132          sfr P1M1 = 0x91;    //PxM1.n,PxM0.n     =00--->Standard,    01--->push-pull
+ 133          sfr P1M0 = 0x92;    //                  =10--->pure input,  11--->open drain
+ 134          sfr P0M1 = 0x93;
+ 135          sfr P0M0 = 0x94;
+ 136          sfr P2M1 = 0x95;
+ 137          sfr P2M0 = 0x96;
+ 138          sfr P3M1 = 0xB1;
+ 139          sfr P3M0 = 0xB2;
+ 140          
+ 141          
+ 142          void init_MCU()
+ 143          {
+ 144   1      }
+ 145          
+ 146          void init_IO()
+ 147          {
+ 148   1              P1M0=0xFF; // P1推挽输出
+ 149   1              P1M1=0x00;
+ 150   1              P3M0=0xFF; // P3推挽输出
+ 151   1              P3M1=0x00;
+ 152   1      }
+ 153          
+ 154          #endif
+ 155          
+ 156          
+ 157          
+ 158          
+ 159          // 显示测试用例，不区分MCU、显示IC
+ 160          void test_lcd()
+ 161          {
+ 162   1              // 设置默认字体和单色图的前景和背景颜色
+ 163   1              lcd_SetTextColor(LCD_BLUE);
+ 164   1              lcd_SetBackColor(LCD_WHITE);
+ 165   1      
+ 166   1              // 设置默认字体
+ 167   1              lcd_SetAsciiFont(&ASC_8x16); // 英文字体
+ 168   1              lcd_SetGBFont(&GB_16x16); // 中文字体
+ 169   1      
+ 170   1              lcd_Clear(); // LCD上电后，显存数据为随机值，需要用背景色刷全屏
+ 171   1      
+ 172   1              // 彩屏则显示彩色图片
+ 173   1              lcd_ShowPicture(X_WIDTH / 2 - 28 - 32, Y_WIDTH / 2 - 28 - 30, gImage, 56, 56);
+ 174   1      
+ 175   1              // 1bit位图，彩屏自动转换为当前文字颜色
+ 176   1              lcd_ShowMonoPicture(X_WIDTH / 2 - 32 + 32, Y_WIDTH / 2 - 32 - 30, MonoBmp64x64, 64, 64);
+ 177   1      
+ 178   1              // keil bug 直接用汉字"数"乱码，用hex \xca\xfd 替换
+C51 COMPILER V9.00   MAIN                                                                  12/23/2022 11:35:54 PAGE 4   
+
+ 179   1              lcd_ShowText(LCD_RED, 56, Y_WIDTH / 2 + 36 - 30, "老王电子\xca\xfd码Diy");
+ 180   1              lcd_ShowText(LCD_BLACK, 56, Y_WIDTH / 2 + 56 - 30, "手机淘宝扫一扫");
+ 181   1              lcd_ShowText(LCD_BROWN, 36, Y_WIDTH / 2 + 76 - 30, "显示参\xca\xfd: 320*320 16位");
+ 182   1      
+ 183   1              MCU_DELAY_MS(20000);
+ 184   1              
+ 185   1      }
+ 186          
+ 187          // 主函数
+ 188          int main()
+ 189          {
+ 190   1              init_MCU();
+ 191   1              init_IO();
+ 192   1              LCD_IC_INIT();
+ 193   1      
+ 194   1              for (;;)
+ 195   1              {
+ 196   2                      test_lcd();
+ 197   2                      LCD_IC_INIT(); // 增加可靠性，测试中引脚接触不良导致初始化失败，无需重新上电
+ 198   2              }
+ 199   1              return 0;
+ 200   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1956    ----
+   CONSTANT SIZE    =   8409    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     14      70
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
