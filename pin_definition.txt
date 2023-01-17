@@ -1,0 +1,2 @@
+1, 2, 19, 21, 23-GND (connected internally, just connect one) 9-TE empty 11~18-D0~D8
+20-RD 22-DC 24-WR 25-CS 26-RST 27,28-VDD(3V3) 30-BL- 32-BL+(3S,8V) 33-?Empty
